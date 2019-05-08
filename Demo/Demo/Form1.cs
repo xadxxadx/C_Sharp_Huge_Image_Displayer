@@ -30,8 +30,13 @@ namespace Demo
 
         private void DisplayControler1_ImageMouseMove(object arg1, MouseEventArgs arg2, Point pixelLoc)
         {
+            Rectangle rect_old = new Rectangle(mouse_location.X, mouse_location.Y, 10, 10);
+            Rectangle rect_new = new Rectangle(arg2.X, arg2.Y, 10, 10);
             mouse_location = arg2.Location;
-            this.displayControler1.Invalidate();
+            Region r = new Region(rect_old);
+            r.Union(rect_new);
+            this.displayControler1.Invalidate(r);
+            //this.displayControler1.Invalidate()
             //Console.WriteLine(pixelLoc.ToString());
         }
     }

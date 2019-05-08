@@ -37,6 +37,7 @@
             this.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.Name = "DisplayControler";
             this.Size = new System.Drawing.Size(352, 267);
+            this.Resize += new System.EventHandler(this.DisplayControler_Resize);
             this.ResumeLayout(false);
 
         }

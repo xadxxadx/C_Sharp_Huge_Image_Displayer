@@ -48,6 +48,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(790, 519);
             this.Controls.Add(this.displayControler1);
+            this.Cursor = System.Windows.Forms.Cursors.Cross;
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);

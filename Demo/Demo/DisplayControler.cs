@@ -11,6 +11,7 @@ using System.Drawing.Imaging;
 
 namespace Demo
 {
+    //public delegate void ActionRef<T1, T2>(T1 arg1, ref T2 arg2);
     public partial class DisplayControler : UserControl
     {
         private Point _start_point = new Point(0, 0);
@@ -139,9 +140,9 @@ namespace Demo
                             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 
                             float[][] matrixItems ={
-                                   new float[] { this._scale, 0, 0, 0, 0},
-                                   new float[] {0, this._scale, 0, 0, 0},
-                                   new float[] {0, 0, this._scale, 0, 0},
+                                   new float[] { 1, 0, 0, 0, 0},
+                                   new float[] {0, 1, 0, 0, 0},
+                                   new float[] {0, 0, 1, 0, 0},
                                    new float[] {0, 0, 0, 0.5f, 0},
                                    new float[] {0, 0, 0, 0, 1}};
                             ColorMatrix colorMatrix = new ColorMatrix(matrixItems);
@@ -168,6 +169,11 @@ namespace Demo
                 this.ImageOnPaint(e);
                 //e.Graphics.ScaleTransform(1f, 1f);
             }
+        }
+
+        private void DisplayControler_Resize(object sender, EventArgs e)
+        {
+            this.Invalidate();
         }
     }
 }
