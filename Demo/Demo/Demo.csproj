@@ -55,6 +55,12 @@
     <Compile Include="DisplayControler.Designer.cs">
       <DependentUpon>DisplayControler.cs</DependentUpon>
     </Compile>
+    <Compile Include="Displayer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Displayer.Designer.cs">
+      <DependentUpon>Displayer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -65,6 +71,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DisplayControler.resx">
       <DependentUpon>DisplayControler.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Displayer.resx">
+      <DependentUpon>Displayer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

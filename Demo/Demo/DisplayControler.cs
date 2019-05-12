@@ -25,6 +25,18 @@ namespace Demo
 
         public event Action<object, MouseEventArgs, Point> ImageMouseMove;
         public event Action<PaintEventArgs> ImageOnPaint;
+        public event Action<object, EventArgs> ScrollBarNeedToChange;
+
+        public float ImageScale{ get { return this._scale; } }
+        public Point StartPoint
+        {
+            get { return this._start_point; }
+            set
+            {
+                this._start_point = value;
+                this.Invalidate();
+            }
+        }
 
         public Image Image
         {
@@ -34,6 +46,9 @@ namespace Demo
                 lock(this)
                 {
                     this._image = value;
+                    this.Invalidate();
+                    if (this.ScrollBarNeedToChange != null)
+                        this.ScrollBarNeedToChange(this, null);
                 }
             }
         }
@@ -46,6 +61,9 @@ namespace Demo
                 lock (this)
                 {
                     this._label = value;
+                    this.Invalidate();
+                    if (this.ScrollBarNeedToChange != null)
+                        this.ScrollBarNeedToChange(this, null);
                 }
             }
         }
@@ -77,6 +95,8 @@ namespace Demo
                     this._start_point = PointMult(this._start_point, 2f);
                 }
             }
+            if (this.ScrollBarNeedToChange != null)
+                this.ScrollBarNeedToChange(this, e);
             this.Refresh();
         }
 
@@ -101,12 +121,16 @@ namespace Demo
                 else
                 {
                     this._start_point = PointAdd(this._mouse_down_start_point, PointMult(PointSub(e.Location, this._mouse_down_location), 1 / this._scale));
+                    this._start_point = new Point(Math.Min(0, this._start_point.X), Math.Min(0, this._start_point.Y));
                 }
+                if (this.ScrollBarNeedToChange != null)
+                    this.ScrollBarNeedToChange(this, e);
                 this.Invalidate();
             }
             if (this.ImageMouseMove != null)
             {
                 this.ImageMouseMove(this, e, new Point((int)((e.X - this._start_point.X * this._scale) / this._scale), (int)((e.Y - this._start_point.Y * this._scale) / this._scale)));
+                Console.WriteLine(e.Location.ToString());
             }
         }
 
@@ -129,7 +153,7 @@ namespace Demo
                     if(this._image != null)
                     {
                         this.ClipStartPoint();
-                  
+                        e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                         e.Graphics.ScaleTransform(this._scale, this._scale);
                         e.Graphics.DrawImage(this._image, this._start_point);
                         
