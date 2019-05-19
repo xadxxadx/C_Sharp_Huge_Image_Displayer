@@ -20,13 +20,21 @@ namespace Demo
         private Image _label = null;
         private Point _mouse_down_location = Point.Empty;
         private Point _mouse_down_start_point = Point.Empty;
-        private float _max_scale = 32f;
+        private float _max_scale = 64f;
         private float _min_scale = 1f / 32;
 
         public event Action<object, MouseEventArgs, Point> ImageMouseMove;
+        public event Action<object, MouseEventArgs, Point> ImageMouseDown;
+        public event Action<object, MouseEventArgs, Point> ImageMouseUp;
+
         public event Action<PaintEventArgs> ImageOnPaint;
         public event Action<object, EventArgs> ScrollBarNeedToChange;
 
+        public PointF PixelByMouse(Point location)
+        {
+            return new PointF(Math.Abs(this._start_point.X) + location.X / this._scale + 0.5f,
+                (Math.Abs(this._start_point.Y) + location.Y / this._scale + 0.5f));
+        }
         public float ImageScale{ get { return this._scale; } }
         public Point StartPoint
         {
@@ -34,6 +42,7 @@ namespace Demo
             set
             {
                 this._start_point = value;
+                this.ClipStartPoint();
                 this.Invalidate();
             }
         }
@@ -75,11 +84,21 @@ namespace Demo
             this.MouseMove += DisplayControler_MouseMove;
             this.MouseDown += DisplayControler_MouseDown;
             this.MouseWheel += DisplayControler_MouseWheel;
+            this.MouseUp += DisplayControler_MouseUp;
+        }
+
+        private void DisplayControler_MouseUp(object sender, MouseEventArgs e)
+        {
+            this._mouse_down_location = e.Location;
+            this._mouse_down_start_point = this._start_point;
+            if (this.ImageMouseUp != null)
+                this.ImageMouseUp(sender, e, new Point((int)((e.X - this._start_point.X * this._scale) / this._scale), (int)((e.Y - this._start_point.Y * this._scale) / this._scale)));
         }
 
         private void DisplayControler_MouseWheel(object sender, MouseEventArgs e)
         {
-            if(e.Delta > 0)
+            PointF pixelLocation = PixelByMouse(e.Location);
+            if (e.Delta > 0)
             {
                 if (this._scale < this._max_scale)
                 {
@@ -95,6 +114,8 @@ namespace Demo
                     this._start_point = PointMult(this._start_point, 2f);
                 }
             }
+            this.StartPoint = new Point((int)(-pixelLocation.X + e.X / this._scale), (int)(-pixelLocation.Y + e.Y / this._scale));
+
             if (this.ScrollBarNeedToChange != null)
                 this.ScrollBarNeedToChange(this, e);
             this.Refresh();
@@ -108,6 +129,8 @@ namespace Demo
         {
             this._mouse_down_location = e.Location;
             this._mouse_down_start_point = this._start_point;
+            if (this.ImageMouseDown != null)
+                this.ImageMouseDown(sender, e, new Point((int)((e.X - this._start_point.X * this._scale) / this._scale), (int)((e.Y - this._start_point.Y * this._scale) / this._scale)));
         }
 
         private void DisplayControler_MouseMove(object sender, MouseEventArgs e)
@@ -129,19 +152,22 @@ namespace Demo
             }
             if (this.ImageMouseMove != null)
             {
-                this.ImageMouseMove(this, e, new Point((int)((e.X - this._start_point.X * this._scale) / this._scale), (int)((e.Y - this._start_point.Y * this._scale) / this._scale)));
-                Console.WriteLine(e.Location.ToString());
+                this.ImageMouseMove(sender, e, new Point((int)((e.X - this._start_point.X * this._scale) / this._scale), (int)((e.Y - this._start_point.Y * this._scale) / this._scale)));
+                //Console.WriteLine(PixelByMouse(e.Location).ToString());
             }
         }
 
         private void ClipStartPoint()
         {
-            Size img_size = this.Image.Size;
-            int max_x = -(int)((img_size.Width * this._scale - this.Width) / this._scale);
-            int max_y = -(int)((img_size.Height * this._scale - this.Height) / this._scale);
-            max_x = max_x > 0 ? max_x / 2 : max_x;
-            max_y = max_y > 0 ? max_y / 2 : max_y;
-            this._start_point = new Point(Math.Max(max_x, Math.Min(0, this._start_point.X)), Math.Max(max_y, Math.Min(0, this._start_point.Y)));
+            if (this.Image != null)
+            {
+                Size img_size = this.Image.Size;
+                int max_x = -(int)((img_size.Width * this._scale - this.Width) / this._scale);
+                int max_y = -(int)((img_size.Height * this._scale - this.Height) / this._scale);
+                max_x = max_x > 0 ? max_x / 2 : max_x;
+                max_y = max_y > 0 ? max_y / 2 : max_y;
+                this._start_point = new Point(Math.Max(max_x, Math.Min(0, this._start_point.X)), Math.Max(max_y, Math.Min(0, this._start_point.Y)));
+            }
         }
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -153,13 +179,16 @@ namespace Demo
                     if(this._image != null)
                     {
                         this.ClipStartPoint();
+                        e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                        e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
                         e.Graphics.ScaleTransform(this._scale, this._scale);
                         e.Graphics.DrawImage(this._image, this._start_point);
                         
 
                         if (this._label != null)
                         {
+                            e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 
