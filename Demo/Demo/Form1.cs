@@ -31,12 +31,15 @@ namespace Demo
 
         private void Displayer1_ImageMouseUp(object arg1, MouseEventArgs arg2, Point arg3)
         {
-            this._reverse_list.Add(this._label_image.Clone(new Rectangle(0,0,this._label_image.Width, this._label_image.Height), this._label_image.PixelFormat));
-            if(this._reverse_list.Count() > 10)
+            if (arg2.Button == MouseButtons.Right)
             {
-                Bitmap drop = this._reverse_list[0];
-                drop.Dispose();
-                this._reverse_list.RemoveAt(0);
+                this._reverse_list.Add(this._label_image.Clone(new Rectangle(0, 0, this._label_image.Width, this._label_image.Height), this._label_image.PixelFormat));
+                if (this._reverse_list.Count() > 10)
+                {
+                    Bitmap drop = this._reverse_list[0];
+                    drop.Dispose();
+                    this._reverse_list.RemoveAt(0);
+                }
             }
         }
 
@@ -142,6 +145,7 @@ namespace Demo
                     this._reverse_list.RemoveAt(this._reverse_list.Count() - 1);
                     using (Graphics g = Graphics.FromImage(this._label_image))
                         g.DrawImage(tmp, Point.Empty);
+                    this.displayer1.Refresh();
                 }
             }
         }
