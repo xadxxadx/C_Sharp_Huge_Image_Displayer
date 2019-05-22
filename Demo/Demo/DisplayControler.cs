@@ -193,9 +193,9 @@ namespace Demo
                             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 
                             float[][] matrixItems ={
-                                   new float[] { 1, 0, 0, 0, 0},
-                                   new float[] {0, 1, 0, 0, 0},
-                                   new float[] {0, 0, 1, 0, 0},
+                                   new float[] { 255, 0, 0, 0, 0},
+                                   new float[] {0, 0, 0, 0, 0},
+                                   new float[] {0, 0, 0, 0, 0},
                                    new float[] {0, 0, 0, 0.5f, 0},
                                    new float[] {0, 0, 0, 0, 1}};
                             ColorMatrix colorMatrix = new ColorMatrix(matrixItems);

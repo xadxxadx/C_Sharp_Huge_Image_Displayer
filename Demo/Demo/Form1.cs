@@ -43,6 +43,7 @@ namespace Demo
             }
         }
 
+        Brush red = new SolidBrush(Color.FromArgb(1, 1, 1));
         private void DrawOnMouseMove(object arg1, MouseEventArgs arg2, Point arg3)
         {
             if(arg2.Button == MouseButtons.Right)
@@ -50,7 +51,7 @@ namespace Demo
                 float brushSize = (float)this.numericUpDown1.Value;
                 using (Graphics g = Graphics.FromImage(this._label_image))
                 {
-                    g.FillEllipse(Brushes.Red, arg3.X - brushSize/ 2, arg3.Y - brushSize / 2, brushSize  , brushSize);
+                    g.FillEllipse(red, arg3.X - brushSize/ 2, arg3.Y - brushSize / 2, brushSize  , brushSize);
                 }
                 float scale = this.displayer1.ImageScale;
                 float min_width = Math.Max(3, (brushSize + 2)* scale );
@@ -60,12 +61,12 @@ namespace Demo
             }
             Console.WriteLine(arg2.Location.ToString());
         }
-
+        Pen redPen = new Pen(Color.FromArgb(255, 255, 1));
         private void DisplayControler1_ImageOnPaint(PaintEventArgs obj)
         {
             float scale = this.displayer1.ImageScale;
             int brushSize = (int)this.numericUpDown1.Value;
-            obj.Graphics.DrawEllipse(Pens.Red, this.mouse_location.X- brushSize * scale/ 2, this.mouse_location.Y- brushSize * scale / 2, (int)(brushSize * scale), (int)(brushSize * scale));
+            obj.Graphics.DrawEllipse(redPen, this.mouse_location.X- brushSize * scale/ 2, this.mouse_location.Y- brushSize * scale / 2, (int)(brushSize * scale), (int)(brushSize * scale));
             //Console.WriteLine(this.mouse_location.ToString());
         }
 
@@ -132,7 +133,7 @@ namespace Demo
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-           
+            this._label_image.Save(this._label_file_path);
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
