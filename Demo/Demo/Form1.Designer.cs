@@ -37,12 +37,13 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.displayer1 = new Demo.Displayer();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.imageFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.displayer1 = new Demo.Displayer();
+            this.layersPannel1 = new ImageLayer.LayersPannel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -88,6 +89,7 @@
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.layersPannel1);
             this.splitContainer2.Panel2.Controls.Add(this.groupBox1);
             this.splitContainer2.Size = new System.Drawing.Size(167, 495);
             this.splitContainer2.SplitterDistance = 253;
@@ -202,6 +204,15 @@
             0,
             0});
             // 
+            // displayer1
+            // 
+            this.displayer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.displayer1.Image = null;
+            this.displayer1.Location = new System.Drawing.Point(0, 0);
+            this.displayer1.Name = "displayer1";
+            this.displayer1.Size = new System.Drawing.Size(619, 495);
+            this.displayer1.TabIndex = 0;
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -235,15 +246,15 @@
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
-            // displayer1
+            // layersPannel1
             // 
-            this.displayer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.displayer1.Image = null;
-            this.displayer1.Label = null;
-            this.displayer1.Location = new System.Drawing.Point(0, 0);
-            this.displayer1.Name = "displayer1";
-            this.displayer1.Size = new System.Drawing.Size(619, 495);
-            this.displayer1.TabIndex = 0;
+            this.layersPannel1.AutoScroll = true;
+            this.layersPannel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layersPannel1.Location = new System.Drawing.Point(0, 84);
+            this.layersPannel1.Name = "layersPannel1";
+            this.layersPannel1.SelectIndex = -1;
+            this.layersPannel1.Size = new System.Drawing.Size(167, 154);
+            this.layersPannel1.TabIndex = 3;
             // 
             // Form1
             // 
@@ -295,6 +306,7 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.NumericUpDown numericUpDown2;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private ImageLayer.LayersPannel layersPannel1;
     }
 }
 

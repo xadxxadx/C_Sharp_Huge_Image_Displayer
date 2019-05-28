@@ -28,6 +28,7 @@ namespace Demo
         public event Action<object, MouseEventArgs, Point> ImageMouseUp;
 
         public event Action<PaintEventArgs> ImageOnPaint;
+        public event Action<PaintEventArgs> LabelOnPaint;
         public event Action<object, EventArgs> ScrollBarNeedToChange;
 
         public PointF PixelByMouse(Point location)
@@ -183,15 +184,17 @@ namespace Demo
                         e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                         e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
                         e.Graphics.ScaleTransform(this._scale, this._scale);
-                        e.Graphics.DrawImage(this._image, this._start_point);
-                        
+                        e.Graphics.TranslateTransform(this._start_point.X, this._start_point.Y);
+                        e.Graphics.DrawImage(this._image, 0, 0);
 
-                        if (this._label != null)
+                        if (this.LabelOnPaint != null)
+                            this.LabelOnPaint(e);
+                        /*if (this._label != null)
                         {
                             e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-
+ 
                             float[][] matrixItems ={
                                    new float[] { 255, 0, 0, 0, 0},
                                    new float[] {0, 0, 0, 0, 0},
@@ -211,8 +214,9 @@ namespace Demo
                                 this._label.Height,
                                 GraphicsUnit.Pixel,
                                 attributes);
-                        }
-                        e.Graphics.ScaleTransform(1.0f / this._scale, 1.0f / this._scale);
+                        }*/
+                        //e.Graphics.ScaleTransform(1.0f / this._scale, 1.0f / this._scale);
+                        e.Graphics.ResetTransform();
                     }
                 }
             }

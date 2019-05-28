@@ -17,6 +17,7 @@ namespace Demo
             InitializeComponent();
             this.displayControler1.ImageMouseMove += DisplayControler1_ImageMouseMove;
             this.displayControler1.ImageOnPaint += DisplayControler1_ImageOnPaint;
+            this.displayControler1.LabelOnPaint += DisplayControler1_LabelOnPaint;
             this.displayControler1.ImageMouseDown += DisplayControler1_ImageMouseMove;
             this.displayControler1.ImageMouseUp += DisplayControler1_ImageMouseUp;
             this.SizeChanged += UpdateScrollBar;
@@ -24,6 +25,12 @@ namespace Demo
             this.hScrollBar1.ValueChanged += ScrollBarH_ValueChanged;
             this.vScrollBar1.ValueChanged += ScrollBarV_ValueChanged;
             this.Invalidated += Displayer_Invalidated;
+        }
+
+        private void DisplayControler1_LabelOnPaint(PaintEventArgs obj)
+        {
+            if (this.LabelOnPaint != null)
+                this.LabelOnPaint(obj);
         }
 
         private void DisplayControler1_ImageMouseUp(object arg1, MouseEventArgs arg2, Point arg3)
@@ -80,17 +87,13 @@ namespace Demo
                 this.displayControler1.Image = value;
             }
         }
-        public Image Label
-        {
-            get { return this.displayControler1.Label; }
-            set { this.displayControler1.Label = value; }
-        }
 
         public float ImageScale { get { return this.displayControler1.ImageScale; } }
 
         public event Action<object, MouseEventArgs, Point> ImageMouseMove;
         public event Action<object, MouseEventArgs, Point> ImageMouseUp;
         public event Action<PaintEventArgs> ImageOnPaint;
+        public event Action<PaintEventArgs> LabelOnPaint;
 
 
         private bool displayer2scrollbar = false;

@@ -8,30 +8,70 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Drawing.Imaging;
 
 namespace Demo
 {
     public partial class Form1 : Form
     {
         Point mouse_location;
-        Bitmap _label_image;
-        List<Bitmap> _reverse_list = new List<Bitmap>();
-        string _label_file_path = "";
+        List<Bitmap> _label_images = new List<Bitmap>();
+        List<KeyValuePair<int, Bitmap>> _reverse_list = new List<KeyValuePair<int, Bitmap>>();
         public Form1()
         {
             InitializeComponent();
             this.displayer1.Image = new Bitmap(@"\\192.168.1.120\Data\Pictures\20180102_新陽\白點\c2.bmp");
-            this._label_image = new Bitmap(this.displayer1.Image.Width, this.displayer1.Image.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-            this.displayer1.Label = this._label_image;
+            //this._label_images.Add(new Bitmap(@"\\192.168.1.120\Data\Pictures\20180102_新陽\白點\c3.bmp"));
+            this._label_images.Add(new Bitmap(this.displayer1.Image.Width, this.displayer1.Image.Height, PixelFormat.Format24bppRgb));
             this.displayer1.ImageMouseMove += DisplayControler1_ImageMouseMove;
             this.displayer1.ImageMouseMove += DrawOnMouseMove;
             this.displayer1.ImageOnPaint += DisplayControler1_ImageOnPaint;
+            this.displayer1.LabelOnPaint += Displayer1_LabelOnPaint;
             this.displayer1.ImageMouseUp += Displayer1_ImageMouseUp;
+            this.layersPannel1.ColorChanged += LayersPannel1_ColorChanged;
+            this.layersPannel1.AddLayer(Color.Red, 1);
+        }
+
+        private void LayersPannel1_ColorChanged(object arg1, EventArgs arg2)
+        {
+            this.displayer1.Refresh();
+        }
+
+        private void Displayer1_LabelOnPaint(PaintEventArgs obj)
+        {
+            Graphics g = obj.Graphics;
+            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+            Color color = this.layersPannel1.SelectedColor;
+            float[][] matrixItems ={
+                                   new float[] { color.R, 0, 0, 0, 0},
+                                   new float[] {0, color.G, 0, 0, 0},
+                                   new float[] {0, 0, color.B, 0, 0},
+                                   new float[] {0, 0, 0, 0.5f, 0},
+                                   new float[] {0, 0, 0, 0, 1}};
+            ColorMatrix colorMatrix = new ColorMatrix(matrixItems);
+            ImageAttributes attributes = new ImageAttributes();
+            attributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+
+            
+            foreach (Bitmap image in this._label_images)
+            {
+                g.DrawImage(
+                image,
+                new Rectangle(new Point(0,0), new Size(image.Width, image.Height)),
+                0.0f,
+                0.0f,
+                image.Width,
+                image.Height,
+                GraphicsUnit.Pixel,
+                attributes);
+            }
         }
 
         private void Displayer1_ImageMouseUp(object arg1, MouseEventArgs arg2, Point arg3)
         {
-            if (arg2.Button == MouseButtons.Right)
+            /*if (arg2.Button == MouseButtons.Right)
             {
                 this._reverse_list.Add(this._label_image.Clone(new Rectangle(0, 0, this._label_image.Width, this._label_image.Height), this._label_image.PixelFormat));
                 if (this._reverse_list.Count() > 10)
@@ -40,7 +80,7 @@ namespace Demo
                     drop.Dispose();
                     this._reverse_list.RemoveAt(0);
                 }
-            }
+            }*/
         }
 
         Brush red = new SolidBrush(Color.FromArgb(1, 1, 1));
@@ -49,9 +89,12 @@ namespace Demo
             if(arg2.Button == MouseButtons.Right)
             {
                 float brushSize = (float)this.numericUpDown1.Value;
-                using (Graphics g = Graphics.FromImage(this._label_image))
+                if (this.layersPannel1.SelectIndex >= 0)
                 {
-                    g.FillEllipse(red, arg3.X - brushSize/ 2, arg3.Y - brushSize / 2, brushSize  , brushSize);
+                    using (Graphics g = Graphics.FromImage(this._label_images[this.layersPannel1.SelectIndex]))
+                    {
+                        g.FillEllipse(red, arg3.X - brushSize / 2, arg3.Y - brushSize / 2, brushSize, brushSize);
+                    }
                 }
                 float scale = this.displayer1.ImageScale;
                 float min_width = Math.Max(3, (brushSize + 2)* scale );
@@ -87,7 +130,7 @@ namespace Demo
             //Console.WriteLine(pixelLoc.ToString());
         }
 
-        private string _search_pattern = "*.bmp|*.jpg|*.tif|*.png";
+        private string _search_pattern = " *.bmp|*.jpg|*.tif|*.png";
         private void selectFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if(this.folderBrowserDialog1.ShowDialog() == DialogResult.OK)
@@ -109,7 +152,7 @@ namespace Demo
 
         private void loadNewImage(FileInfo fileInfo)
         {
-            foreach (Bitmap tmp in this._reverse_list)
+            /*foreach (Bitmap tmp in this._reverse_list)
                 tmp.Dispose();
             this._reverse_list.Clear();
             if (fileInfo != null)
@@ -123,7 +166,7 @@ namespace Demo
 
                 this._reverse_list.Add(this._label_image.Clone(new Rectangle(0, 0, this._label_image.Width, this._label_image.Height), this._label_image.PixelFormat));
                 this.displayer1.Label = this._label_image;
-            }
+            }*/
         }
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -133,12 +176,12 @@ namespace Demo
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this._label_image.Save(this._label_file_path);
+            //this._label_image.Save(this._label_file_path);
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Control && e.KeyCode == Keys.Z)
+            /*if(e.Control && e.KeyCode == Keys.Z)
             {
                 if (this._reverse_list.Count() > 1)
                 {
@@ -148,7 +191,7 @@ namespace Demo
                         g.DrawImage(tmp, Point.Empty);
                     this.displayer1.Refresh();
                 }
-            }
+            }*/
         }
 
     }
