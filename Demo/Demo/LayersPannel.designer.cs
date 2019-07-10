@@ -1,4 +1,4 @@
-﻿namespace ImageLayer
+﻿namespace Demo
 {
     partial class LayersPannel
     {

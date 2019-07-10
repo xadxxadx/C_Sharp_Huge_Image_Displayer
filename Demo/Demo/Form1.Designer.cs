@@ -32,6 +32,9 @@
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.layersPannel1 = new Demo.LayersPannel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
@@ -43,7 +46,6 @@
             this.selectFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.layersPannel1 = new ImageLayer.LayersPannel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -89,6 +91,8 @@
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.button2);
+            this.splitContainer2.Panel2.Controls.Add(this.button1);
             this.splitContainer2.Panel2.Controls.Add(this.layersPannel1);
             this.splitContainer2.Panel2.Controls.Add(this.groupBox1);
             this.splitContainer2.Size = new System.Drawing.Size(167, 495);
@@ -112,6 +116,37 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(167, 22);
             this.textBox1.TabIndex = 1;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(32, 86);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(23, 23);
+            this.button2.TabIndex = 4;
+            this.button2.Text = "-";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(3, 86);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(23, 23);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "+";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // layersPannel1
+            // 
+            this.layersPannel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.layersPannel1.AutoScroll = true;
+            this.layersPannel1.Location = new System.Drawing.Point(0, 115);
+            this.layersPannel1.Name = "layersPannel1";
+            this.layersPannel1.Size = new System.Drawing.Size(167, 123);
+            this.layersPannel1.TabIndex = 3;
             // 
             // groupBox1
             // 
@@ -246,16 +281,6 @@
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
-            // layersPannel1
-            // 
-            this.layersPannel1.AutoScroll = true;
-            this.layersPannel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layersPannel1.Location = new System.Drawing.Point(0, 84);
-            this.layersPannel1.Name = "layersPannel1";
-            this.layersPannel1.SelectIndex = -1;
-            this.layersPannel1.Size = new System.Drawing.Size(167, 154);
-            this.layersPannel1.TabIndex = 3;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -306,7 +331,9 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.NumericUpDown numericUpDown2;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private ImageLayer.LayersPannel layersPannel1;
+        private Demo.LayersPannel layersPannel1;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button1;
     }
 }
 

@@ -12,24 +12,47 @@ using System.Drawing.Imaging;
 
 namespace Demo
 {
+    public enum REVERSE_TYPE
+    {
+        DRAWING,
+        ADD_LAYER,
+        REMOVE_LAYER
+    }
+    public struct ReverseStruct
+    {
+        public REVERSE_TYPE ReverseType;
+        public ColorLayer Layer;
+        public Bitmap Image;
+        public ReverseStruct(REVERSE_TYPE type, ColorLayer layer, Bitmap image)
+        {
+            ReverseType = type;
+            Layer = layer;
+            Image = image;
+        }
+    }
     public partial class Form1 : Form
     {
         Point mouse_location;
-        List<Bitmap> _label_images = new List<Bitmap>();
-        List<KeyValuePair<int, Bitmap>> _reverse_list = new List<KeyValuePair<int, Bitmap>>();
+        List<ReverseStruct> _reverse_data = new List<ReverseStruct>();
         public Form1()
         {
             InitializeComponent();
             this.displayer1.Image = new Bitmap(@"\\192.168.1.120\Data\Pictures\20180102_新陽\白點\c2.bmp");
             //this._label_images.Add(new Bitmap(@"\\192.168.1.120\Data\Pictures\20180102_新陽\白點\c3.bmp"));
-            this._label_images.Add(new Bitmap(this.displayer1.Image.Width, this.displayer1.Image.Height, PixelFormat.Format24bppRgb));
+            //this._label_images.Add(new Bitmap(this.displayer1.Image.Width, this.displayer1.Image.Height, PixelFormat.Format24bppRgb));
             this.displayer1.ImageMouseMove += DisplayControler1_ImageMouseMove;
             this.displayer1.ImageMouseMove += DrawOnMouseMove;
             this.displayer1.ImageOnPaint += DisplayControler1_ImageOnPaint;
             this.displayer1.LabelOnPaint += Displayer1_LabelOnPaint;
             this.displayer1.ImageMouseUp += Displayer1_ImageMouseUp;
-            this.layersPannel1.ColorChanged += LayersPannel1_ColorChanged;
-            this.layersPannel1.AddLayer(Color.Red, 1);
+            //this.layersPannel1.ColorChanged += LayersPannel1_ColorChanged;
+            //this.layersPannel1.AddLayer(Color.Red, 1);
+            this.layersPannel1.DrawCheckChanged += LayersPannel1_DrawCheckChanged;
+        }
+
+        private void LayersPannel1_DrawCheckChanged(object arg1, EventArgs arg2)
+        {
+            this.displayer1.Refresh();
         }
 
         private void LayersPannel1_ColorChanged(object arg1, EventArgs arg2)
@@ -39,59 +62,73 @@ namespace Demo
 
         private void Displayer1_LabelOnPaint(PaintEventArgs obj)
         {
-            Graphics g = obj.Graphics;
-            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-            Color color = this.layersPannel1.SelectedColor;
-            float[][] matrixItems ={
+            lock (this)
+            {
+                Graphics g = obj.Graphics;
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+
+
+                foreach (Control ctrl in this.layersPannel1.Controls)
+                {
+                    ColorLayer layer = ctrl as ColorLayer;
+                    if (layer != null && layer.DrawEnable && layer.Tag != null)
+                    {
+                        Bitmap image = layer.Tag as Bitmap;
+                        Color color = layer.SelectColor;
+                        float[][] matrixItems ={
                                    new float[] { color.R, 0, 0, 0, 0},
                                    new float[] {0, color.G, 0, 0, 0},
                                    new float[] {0, 0, color.B, 0, 0},
                                    new float[] {0, 0, 0, 0.5f, 0},
                                    new float[] {0, 0, 0, 0, 1}};
-            ColorMatrix colorMatrix = new ColorMatrix(matrixItems);
-            ImageAttributes attributes = new ImageAttributes();
-            attributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                        ColorMatrix colorMatrix = new ColorMatrix(matrixItems);
+                        ImageAttributes attributes = new ImageAttributes();
+                        attributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-            
-            foreach (Bitmap image in this._label_images)
-            {
-                g.DrawImage(
-                image,
-                new Rectangle(new Point(0,0), new Size(image.Width, image.Height)),
-                0.0f,
-                0.0f,
-                image.Width,
-                image.Height,
-                GraphicsUnit.Pixel,
-                attributes);
+                        g.DrawImage(
+                        image,
+                        new Rectangle(new Point(0, 0), new Size(image.Width, image.Height)),
+                        0.0f,
+                        0.0f,
+                        image.Width,
+                        image.Height,
+                        GraphicsUnit.Pixel,
+                        attributes);
+                    }
+                }
             }
         }
 
         private void Displayer1_ImageMouseUp(object arg1, MouseEventArgs arg2, Point arg3)
         {
-            /*if (arg2.Button == MouseButtons.Right)
+            if (arg2.Button == MouseButtons.Right)
             {
-                this._reverse_list.Add(this._label_image.Clone(new Rectangle(0, 0, this._label_image.Width, this._label_image.Height), this._label_image.PixelFormat));
-                if (this._reverse_list.Count() > 10)
+                ColorLayer layer = this.layersPannel1.SelectedLayer;
+                if(layer != null && layer.Tag != null)
                 {
-                    Bitmap drop = this._reverse_list[0];
-                    drop.Dispose();
-                    this._reverse_list.RemoveAt(0);
+                    Bitmap img = layer.Tag as Bitmap;
+                    this._reverse_data.Add(new ReverseStruct(REVERSE_TYPE.DRAWING, layer, img.Clone(new Rectangle(0, 0, img.Width, img.Height), img.PixelFormat)));
+                    if(this._reverse_data.Count > 10)
+                    {
+                        this._reverse_data[0].Image.Dispose();
+                        this._reverse_data.RemoveAt(0);
+                    }
                 }
-            }*/
+            }
         }
 
-        Brush red = new SolidBrush(Color.FromArgb(1, 1, 1));
+        Brush red = new SolidBrush(Color.FromArgb(255, 1, 1, 1));
         private void DrawOnMouseMove(object arg1, MouseEventArgs arg2, Point arg3)
         {
             if(arg2.Button == MouseButtons.Right)
             {
                 float brushSize = (float)this.numericUpDown1.Value;
-                if (this.layersPannel1.SelectIndex >= 0)
+                ColorLayer layer = this.layersPannel1.SelectedLayer;
+                if (layer != null)
                 {
-                    using (Graphics g = Graphics.FromImage(this._label_images[this.layersPannel1.SelectIndex]))
+                    using (Graphics g = Graphics.FromImage(layer.Tag as Bitmap))
                     {
                         g.FillEllipse(red, arg3.X - brushSize / 2, arg3.Y - brushSize / 2, brushSize, brushSize);
                     }
@@ -130,7 +167,7 @@ namespace Demo
             //Console.WriteLine(pixelLoc.ToString());
         }
 
-        private string _search_pattern = " *.bmp|*.jpg|*.tif|*.png";
+        private string _search_pattern = "*.bmp|*.jpg|*.tif|*.png";
         private void selectFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if(this.folderBrowserDialog1.ShowDialog() == DialogResult.OK)
@@ -152,21 +189,28 @@ namespace Demo
 
         private void loadNewImage(FileInfo fileInfo)
         {
-            /*foreach (Bitmap tmp in this._reverse_list)
-                tmp.Dispose();
-            this._reverse_list.Clear();
+            foreach (ReverseStruct tmp in this._reverse_data)
+                tmp.Image.Dispose();
+            this._reverse_data.Clear();
             if (fileInfo != null)
             {
                 this.displayer1.Image = new Bitmap(fileInfo.FullName);
-                this._label_file_path = System.IO.Path.Combine(fileInfo.Directory.FullName, Path.GetFileNameWithoutExtension(fileInfo.Name) + "_mask" + fileInfo.Extension);
-                if (File.Exists(this._label_file_path))
-                    this._label_image = new Bitmap(this._label_file_path);
-                else
-                    this._label_image = new Bitmap(this.displayer1.Image.Width, this.displayer1.Image.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-
-                this._reverse_list.Add(this._label_image.Clone(new Rectangle(0, 0, this._label_image.Width, this._label_image.Height), this._label_image.PixelFormat));
-                this.displayer1.Label = this._label_image;
-            }*/
+                foreach (ColorLayer cl in this.layersPannel1.Controls)
+                {
+                    Bitmap emptyImg = new Bitmap(this.displayer1.Image.Width, this.displayer1.Image.Height, PixelFormat.Format32bppArgb);
+                    using (Graphics g = Graphics.FromImage(emptyImg))
+                    {
+                        using (Brush brush = new SolidBrush(Color.FromArgb(0, 0, 0, 0)))
+                        {
+                            g.FillRectangle(brush, new Rectangle(0, 0, emptyImg.Width, emptyImg.Height));
+                        }
+                    }
+                    Bitmap tmp = cl.Tag as Bitmap;
+                    cl.Tag = emptyImg;
+                    if (tmp != null)
+                        tmp.Dispose();
+                }
+            }
         }
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -176,23 +220,114 @@ namespace Demo
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (this.treeView1.SelectedNode != null)
+            {
+                FileInfo file = this.treeView1.SelectedNode.Tag as FileInfo;
+                foreach (ColorLayer cl in this.layersPannel1.Controls)
+                {
+                    Bitmap labelColor = cl.Tag as Bitmap;
+                    Bitmap labelGray = new Bitmap(labelColor.Width, labelColor.Height, PixelFormat.Format8bppIndexed);
+                    BitmapData data = labelGray.LockBits(new Rectangle(0, 0, labelGray.Width, labelGray.Height), ImageLockMode.ReadWrite, PixelFormat.Format8bppIndexed);
+                    byte value = (byte)cl.Index;
+                    unsafe
+                    {
+                        byte* ptr = (byte*)data.Scan0;
+                        for (int h = 0; h < labelGray.Height; ++h)
+                        {
+                            byte* ptrRow = ptr + h * data.Stride;
+                            for (int w = 0; w < labelGray.Width; ++w)
+                            {
+                                Color color = labelColor.GetPixel(w, h);
+                                if (color.R + color.G + color.B != 0)
+                                {
+                                    ptrRow[w] = value;
+                                }
+                            }
+                        }
+                    }
+                    labelGray.UnlockBits(data);
+                    string distName = file.Directory.FullName + "\\" + Path.GetFileNameWithoutExtension(file.Name) + "_" + cl.IndexName + file.Extension;
+                    labelGray.Save(distName);
+                    labelGray.Dispose();
+                }
+            }
             //this._label_image.Save(this._label_file_path);
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            /*if(e.Control && e.KeyCode == Keys.Z)
+            if(e.Control && e.KeyCode == Keys.Z)
             {
-                if (this._reverse_list.Count() > 1)
+                if (this._reverse_data.Count > 1)
                 {
-                    Bitmap tmp = this._reverse_list[this._reverse_list.Count() - 2];
-                    this._reverse_list.RemoveAt(this._reverse_list.Count() - 1);
-                    using (Graphics g = Graphics.FromImage(this._label_image))
-                        g.DrawImage(tmp, Point.Empty);
-                    this.displayer1.Refresh();
+                    lock (this)
+                    {
+                        ReverseStruct rs = this._reverse_data[this._reverse_data.Count - 1];
+                        switch (rs.ReverseType)
+                        {
+                            case REVERSE_TYPE.DRAWING:
+                                for (int i = this._reverse_data.Count - 2; i >= 0; --i)
+                                {
+                                    if (this._reverse_data[i].Layer == rs.Layer)
+                                    {
+                                        (rs.Layer.Tag as Bitmap).Dispose();
+                                        rs.Layer.Tag = this._reverse_data[i].Image.Clone(new Rectangle(0, 0, this._reverse_data[i].Image.Width, this._reverse_data[i].Image.Height), this._reverse_data[i].Image.PixelFormat);
+                                        break;
+                                    }
+                                }
+                                break;
+                            case REVERSE_TYPE.ADD_LAYER:
+                                this.layersPannel1.RemoveLayer(rs.Layer);
+                                break;
+                            case REVERSE_TYPE.REMOVE_LAYER:
+                                this.layersPannel1.AddLayer(rs.Layer);
+                                break;
+                        }
+                        this._reverse_data[this._reverse_data.Count - 1].Image.Dispose();
+                        this._reverse_data.RemoveAt(this._reverse_data.Count - 1);
+                        Console.WriteLine(this._reverse_data.Count.ToString());
+                    }
                 }
-            }*/
+                this.displayer1.Refresh();
+            }
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Bitmap emptyImg = new Bitmap(this.displayer1.Image.Width, this.displayer1.Image.Height, PixelFormat.Format32bppArgb);
+            using (Graphics g = Graphics.FromImage(emptyImg))
+            {
+                using (Brush brush = new SolidBrush(Color.FromArgb(0, 0, 0, 0)))
+                {
+                    g.FillRectangle(brush, new Rectangle(0, 0, emptyImg.Width, emptyImg.Height));
+                }
+            }
+            lock (this)
+            {
+                ColorLayer layer = this.layersPannel1.AddLayer();
+                /*List<Bitmap> historys = new List<Bitmap>();
+                for (int i = 0; i < this._label_images.Count; ++i)
+                    historys.Add(null);
+                historys.Add(emptyImg.Clone(new Rectangle(0,0,emptyImg.Width, emptyImg.Height), emptyImg.PixelFormat));
+                this._reverse_list.Add(historys);*/
+                layer.Tag = emptyImg;
+                this._reverse_data.Add(new ReverseStruct(REVERSE_TYPE.ADD_LAYER, layer, emptyImg.Clone(new Rectangle(0, 0, emptyImg.Width, emptyImg.Height), emptyImg.PixelFormat)));
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (this.layersPannel1.SelectedLayer != null)
+            {
+                Bitmap label = this.layersPannel1.SelectedLayer.Tag as Bitmap;
+                this._reverse_data.Add(new ReverseStruct(REVERSE_TYPE.REMOVE_LAYER, this.layersPannel1.SelectedLayer, 
+                    label.Clone(new Rectangle(0,0,label.Width,label.Height), label.PixelFormat)));
+                lock (this)
+                {
+                    this.layersPannel1.RemoveLayer(this.layersPannel1.SelectedLayer);
+                }
+            }
+        }
     }
 }
+
