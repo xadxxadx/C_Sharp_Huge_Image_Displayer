@@ -37,7 +37,7 @@ namespace Demo
         public Form1()
         {
             InitializeComponent();
-            this.displayer1.Image = new Bitmap(@"\\192.168.1.120\Data\Pictures\20180102_新陽\白點\c2.bmp");
+            //this.displayer1.Image = new Bitmap(@"\\192.168.1.120\Data\Pictures\20180102_新陽\白點\c2.bmp");
             //this._label_images.Add(new Bitmap(@"\\192.168.1.120\Data\Pictures\20180102_新陽\白點\c3.bmp"));
             //this._label_images.Add(new Bitmap(this.displayer1.Image.Width, this.displayer1.Image.Height, PixelFormat.Format24bppRgb));
             this.displayer1.ImageMouseMove += DisplayControler1_ImageMouseMove;
@@ -246,6 +246,15 @@ namespace Demo
                         }
                     }
                     labelGray.UnlockBits(data);
+
+                    ColorPalette tempPalette = labelGray.Palette;
+
+                    for (int i = 0; i < 256; i++)
+                    {
+                        tempPalette.Entries[i] = Color.FromArgb(i, i, i);
+                    }
+                    labelGray.Palette = tempPalette;
+
                     string distName = file.Directory.FullName + "\\" + Path.GetFileNameWithoutExtension(file.Name) + "_" + cl.IndexName + file.Extension;
                     labelGray.Save(distName);
                     labelGray.Dispose();
